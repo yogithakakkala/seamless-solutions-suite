@@ -14,16 +14,385 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      application_messages: {
+        Row: {
+          application_id: string
+          created_at: string
+          file_url: string | null
+          id: string
+          is_document_request: boolean
+          message: string | null
+          requested_document_type: string | null
+          sender_type: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          is_document_request?: boolean
+          message?: string | null
+          requested_document_type?: string | null
+          sender_type: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          is_document_request?: boolean
+          message?: string | null
+          requested_document_type?: string | null
+          sender_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_messages_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      applications: {
+        Row: {
+          applicant_details: Json
+          created_at: string
+          id: string
+          scheme_id: string
+          status: string
+          submitted_documents: Json
+          token_number: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          applicant_details?: Json
+          created_at?: string
+          id?: string
+          scheme_id: string
+          status?: string
+          submitted_documents?: Json
+          token_number?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          applicant_details?: Json
+          created_at?: string
+          id?: string
+          scheme_id?: string
+          status?: string
+          submitted_documents?: Json
+          token_number?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_scheme_id_fkey"
+            columns: ["scheme_id"]
+            isOneToOne: false
+            referencedRelation: "schemes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_user_id_profiles_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      certificate_requests: {
+        Row: {
+          certificate_type: string
+          citizen_name: string
+          contact_email: string | null
+          contact_phone: string | null
+          id: string
+          notes: string | null
+          requested_at: string
+          status: string
+          token_number: string
+          updated_at: string
+        }
+        Insert: {
+          certificate_type: string
+          citizen_name: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          id?: string
+          notes?: string | null
+          requested_at?: string
+          status?: string
+          token_number: string
+          updated_at?: string
+        }
+        Update: {
+          certificate_type?: string
+          citizen_name?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          id?: string
+          notes?: string | null
+          requested_at?: string
+          status?: string
+          token_number?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      document_offices: {
+        Row: {
+          document_type: string
+          id: string
+          issuing_office_type: string
+          notes: string | null
+        }
+        Insert: {
+          document_type: string
+          id?: string
+          issuing_office_type: string
+          notes?: string | null
+        }
+        Update: {
+          document_type?: string
+          id?: string
+          issuing_office_type?: string
+          notes?: string | null
+        }
+        Relationships: []
+      }
+      meeseva_centers: {
+        Row: {
+          address: string
+          area: string | null
+          created_at: string
+          district: string | null
+          id: string
+          latitude: number
+          longitude: number
+          name: string
+          name_telugu: string
+          phone: string | null
+          services: string[]
+        }
+        Insert: {
+          address: string
+          area?: string | null
+          created_at?: string
+          district?: string | null
+          id?: string
+          latitude: number
+          longitude: number
+          name: string
+          name_telugu: string
+          phone?: string | null
+          services?: string[]
+        }
+        Update: {
+          address?: string
+          area?: string | null
+          created_at?: string
+          district?: string | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          name?: string
+          name_telugu?: string
+          phone?: string | null
+          services?: string[]
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          is_staff: boolean
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          is_staff?: boolean
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          is_staff?: boolean
+        }
+        Relationships: []
+      }
+      sachivalayam_centers: {
+        Row: {
+          address: string
+          area: string
+          created_at: string
+          district: string
+          id: string
+          latitude: number
+          longitude: number
+          name: string
+          name_telugu: string | null
+          phone: string | null
+          secretariat_code: string | null
+          ward: string | null
+        }
+        Insert: {
+          address: string
+          area: string
+          created_at?: string
+          district: string
+          id?: string
+          latitude: number
+          longitude: number
+          name: string
+          name_telugu?: string | null
+          phone?: string | null
+          secretariat_code?: string | null
+          ward?: string | null
+        }
+        Update: {
+          address?: string
+          area?: string
+          created_at?: string
+          district?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          name?: string
+          name_telugu?: string | null
+          phone?: string | null
+          secretariat_code?: string | null
+          ward?: string | null
+        }
+        Relationships: []
+      }
+      schemes: {
+        Row: {
+          created_at: string
+          description: string
+          eligibility_rules: Json
+          id: string
+          name: string
+          name_telugu: string
+          required_documents: string[]
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          eligibility_rules?: Json
+          id: string
+          name: string
+          name_telugu: string
+          required_documents?: string[]
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          eligibility_rules?: Json
+          id?: string
+          name?: string
+          name_telugu?: string
+          required_documents?: string[]
+        }
+        Relationships: []
+      }
+      user_documents: {
+        Row: {
+          document_type: string
+          file_url: string
+          id: string
+          uploaded_at: string
+          user_id: string
+        }
+        Insert: {
+          document_type: string
+          file_url: string
+          id?: string
+          uploaded_at?: string
+          user_id: string
+        }
+        Update: {
+          document_type?: string
+          file_url?: string
+          id?: string
+          uploaded_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      citizen_add_submitted_document: {
+        Args: {
+          _application_id: string
+          _document_type: string
+          _file_url: string
+        }
+        Returns: undefined
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_staff: { Args: { _uid: string }; Returns: boolean }
+      lookup_application_by_token: {
+        Args: { _token: string }
+        Returns: {
+          applicant_name: string
+          created_at: string
+          scheme_id: string
+          scheme_name: string
+          status: string
+          token_number: string
+          updated_at: string
+        }[]
+      }
+      send_email: {
+        Args: { _html: string; _subject: string; _to: string }
+        Returns: undefined
+      }
+      set_staff_status: {
+        Args: { _new_value: boolean; _target_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "staff"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +519,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "staff"],
+    },
   },
 } as const
