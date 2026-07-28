@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { useLang } from '@/lib/i18n';
@@ -30,19 +31,23 @@ type Tab = 'sachivalayam' | 'meeseva';
 
 export default function NearestCenter() {
   const { lang, t } = useLang();
+  const [searchParams] = useSearchParams();
   const [tab, setTab] = useState<Tab>('sachivalayam');
   const [sachCenters, setSachCenters] = useState<SachivalayamCenter[]>(CENTERS_SEED);
+  const [lessCrowdedOnly, setLessCrowdedOnly] = useState(searchParams.get('filter') === 'less');
   const { centers: meesevaCenters } = useMeesevaCenters();
   const { loc: userLoc, status: geoStatus, request: retryLocation } = useGeolocation(true);
 
   useEffect(() => {
     if (!isSupabaseConfigured) return;
-    supabase
-      .from('sachivalayam_centers')
-      .select('*')
-      .then(({ data }) => {
-        if (data && data.length > 0) setSachCenters(data as SachivalayamCenter[]);
-      });
+    const load = () => supabase.from('sachivalayam_centers').select('*').then(({ data }) => {
+      if (data && data.length > 0) setSachCenters(data as SachivalayamCenter[]);
+    });
+    load();
+    const ch = supabase.channel('centers-realtime')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'sachivalayam_centers' }, load)
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
   }, []);
 
   const rawList: (SachivalayamCenter | MeesevaCenter)[] =
@@ -61,6 +66,19 @@ export default function NearestCenter() {
     const inRange = sorted.filter((c) => (c.distanceKm ?? Infinity) <= MAX_RADIUS_KM);
     sorted = inRange.length > 0 ? inRange : sorted.slice(0, 3);
   }
+  if (!isMeeseva && lessCrowdedOnly) {
+    sorted = sorted.filter((c) => (c as SachivalayamCenter).busy_level !== 'busy');
+  }
+
+  const busyBadge = (level?: string | null) => {
+    if (level === 'busy') return { emoji: '🔴', bg: 'bg-red-100 text-red-700', en: 'Very Busy', te: 'చాలా రద్దీ' };
+    if (level === 'moderate') return { emoji: '🟡', bg: 'bg-yellow-100 text-yellow-800', en: 'Moderate', te: 'మధ్యస్థం' };
+    return { emoji: '🟢', bg: 'bg-green-100 text-green-700', en: 'Less Crowded', te: 'తక్కువ రద్దీ' };
+  };
+  const staleBusy = (updated?: string | null) => {
+    if (!updated) return false;
+    return Date.now() - new Date(updated).getTime() > 8 * 3600 * 1000;
+  };
 
   const mapCenter: [number, number] = userLoc
     ? [userLoc.lat, userLoc.lng]
@@ -102,6 +120,13 @@ export default function NearestCenter() {
         </button>
       </div>
 
+      {tab === 'sachivalayam' && (
+        <label className="flex items-center gap-2 text-xs text-ap-blue">
+          <input type="checkbox" checked={lessCrowdedOnly} onChange={(e) => setLessCrowdedOnly(e.target.checked)} />
+          {lang === 'te' ? 'తక్కువ రద్దీ కేంద్రాలను మాత్రమే చూపించు' : 'Show Less Crowded Only'}
+        </label>
+      )}
+
       <div className="h-72 overflow-hidden rounded-xl border border-ap-blue/10 shadow-sm">
         <MapContainer
           key={tab + (userLoc ? '-loc' : '')}
@@ -113,12 +138,16 @@ export default function NearestCenter() {
             attribution='&copy; OpenStreetMap contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          {rawList.map((c) => (
+          {(isMeeseva ? rawList : (rawList as SachivalayamCenter[]).filter((c) => !lessCrowdedOnly || c.busy_level !== 'busy')).map((c) => (
             <Marker key={c.id} position={[c.latitude, c.longitude]} icon={icon}>
               <Popup>
                 <p className="font-semibold">{lang === 'te' ? c.name_telugu : c.name}</p>
                 <p className="text-xs">{c.address}</p>
                 {c.phone && <p className="text-xs">{c.phone}</p>}
+                {!isMeeseva && (() => {
+                  const b = busyBadge((c as SachivalayamCenter).busy_level);
+                  return <p className="mt-1 text-xs">{b.emoji} {lang === 'te' ? b.te : b.en}</p>;
+                })()}
                 <a
                   href={coordinatesMapsUrl(c.latitude, c.longitude)}
                   target="_blank"
@@ -149,13 +178,30 @@ export default function NearestCenter() {
             >
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <p className="font-semibold text-ap-blue">
-                    {lang === 'te' ? c.name_telugu : c.name}
-                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-semibold text-ap-blue">{lang === 'te' ? c.name_telugu : c.name}</p>
+                    {!isMeeseva && (() => {
+                      const cc = c as SachivalayamCenter & { distanceKm?: number | null };
+                      const b = busyBadge(cc.busy_level);
+                      return (
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${b.bg}`}>
+                          {b.emoji} {lang === 'te' ? b.te : b.en}
+                        </span>
+                      );
+                    })()}
+                  </div>
                   <p className="text-xs text-gray-500">
                     {c.area ? `${c.area} · ` : ''}
                     {c.address}
                   </p>
+                  {!isMeeseva && (c as SachivalayamCenter).busy_note && (
+                    <p className="mt-0.5 text-[11px] italic text-gray-600">"{(c as SachivalayamCenter).busy_note}"</p>
+                  )}
+                  {!isMeeseva && staleBusy((c as SachivalayamCenter).busy_updated_at) && (
+                    <p className="text-[10px] text-gray-400">
+                      {lang === 'te' ? 'రద్దీ సమాచారం పాతది' : 'Busy info may be outdated'}
+                    </p>
+                  )}
                   {c.phone && <p className="text-xs text-gray-500">{c.phone}</p>}
                   {isMeeseva && 'services' in c && c.services.length > 0 && (
                     <p className="mt-1 flex flex-wrap gap-1">
