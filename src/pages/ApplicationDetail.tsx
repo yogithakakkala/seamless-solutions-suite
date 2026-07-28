@@ -5,15 +5,8 @@ import { useLang } from '@/lib/i18n';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { useUnreadUpdates } from '@/hooks/useUnreadUpdates';
+import ApplicationTimeline from '@/components/ApplicationTimeline';
 import type { Application, ApplicationMessage } from '@/types';
-
-const statusStyle: Record<string, string> = {
-  submitted: 'bg-yellow-100 text-yellow-800',
-  under_review: 'bg-blue-100 text-blue-700',
-  documents_requested: 'bg-orange-100 text-orange-800',
-  approved: 'bg-green-100 text-green-700',
-  rejected: 'bg-red-100 text-red-700',
-};
 
 function timeLabel(iso: string) {
   const d = new Date(iso);
@@ -154,10 +147,9 @@ export default function ApplicationDetail() {
         <h1 className="text-xl font-bold text-ap-blue">
           {application.scheme ? (lang === 'te' ? application.scheme.name_telugu : application.scheme.name) : application.scheme_id}
         </h1>
-        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusStyle[application.status]}`}>
-          {application.status.replace('_', ' ')}
-        </span>
       </div>
+
+      <ApplicationTimeline application={application} />
 
       {pendingDocRequest && (
         <div className="rounded-xl border-2 border-ap-orange bg-orange-50 p-4 shadow-sm">

@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Paperclip, Send, Share2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import ApplicationTimeline from '@/components/ApplicationTimeline';
 import type { Application, ApplicationMessage, ApplicationStatus } from '@/types';
 
 const statuses: ApplicationStatus[] = ['submitted', 'under_review', 'documents_requested', 'approved', 'rejected'];
@@ -171,6 +172,9 @@ export default function AdminApplicationDetail() {
 
       {/* Main layout: chat left/center, actions right */}
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+        <div className="lg:col-span-2">
+          <ApplicationTimeline application={application} />
+        </div>
         {/* Chat thread */}
         <div className="rounded-xl border border-ap-blue/10 bg-white shadow-sm">
           <div className="border-b border-ap-blue/10 px-4 py-2.5">
