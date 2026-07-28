@@ -76,7 +76,7 @@ export default function SchemeApply() {
     const payload = {
       user_id: user.id,
       scheme_id: scheme.id,
-      draft_data: { details, uploaded: uploadedDocs },
+      draft_data: { details, uploaded: uploadedDocs } as unknown as never,
       completion_percentage: computeCompletion(),
     };
     const { data, error: err } = await supabase.from('application_drafts')
