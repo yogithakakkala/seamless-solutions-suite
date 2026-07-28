@@ -10,14 +10,20 @@ import {
   X,
   Languages,
   ShieldCheck,
+  AlertOctagon,
+  Building2,
 } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
 import { useAuth } from '@/hooks/useAuth';
+import { useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 
 const items = [
   { to: '/admin', en: 'Applications', te: 'అర్జీలు', Icon: LayoutDashboard, end: true },
+  { to: '/admin/grievances', en: 'Grievances', te: 'ఫిర్యాదులు', Icon: AlertOctagon, badgeKey: 'grievances' as const },
   { to: '/admin/contact', en: 'Contact Applicant', te: 'అభ్యర్థిని సంప్రదించండి', Icon: MessageSquare },
   { to: '/admin/schemes', en: 'Schemes Management', te: 'పథకాల నిర్వహణ', Icon: FileCog },
+  { to: '/admin/centers', en: 'Centers', te: 'కేంద్రాలు', Icon: Building2 },
   { to: '/admin/status', en: 'Status Update', te: 'స్థితి నవీకరణ', Icon: RefreshCw },
 ];
 
@@ -25,7 +31,18 @@ export default function AdminSidebar() {
   const { lang, toggle } = useLang();
   const { user, profile, signOut } = useAuth();
   const [open, setOpen] = useState(false);
+  const [unackCount, setUnackCount] = useState(0);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const load = async () => {
+      const { count } = await supabase.from('grievances').select('id', { count: 'exact', head: true }).eq('status', 'raised');
+      setUnackCount(count ?? 0);
+    };
+    load();
+    const ch = supabase.channel('sb-griev').on('postgres_changes', { event: '*', schema: 'public', table: 'grievances' }, load).subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, []);
 
   const handleSignOut = async () => {
     await signOut();
@@ -70,7 +87,7 @@ export default function AdminSidebar() {
       </div>
 
       <nav className="flex-1 space-y-0.5 overflow-y-auto p-2">
-        {items.map(({ to, en, te, Icon, end }) => (
+        {items.map(({ to, en, te, Icon, end, badgeKey }) => (
           <NavLink
             key={to}
             to={to}
@@ -85,10 +102,15 @@ export default function AdminSidebar() {
             }
           >
             <Icon size={18} className="flex-shrink-0" />
-            <div className="min-w-0 leading-tight">
+            <div className="min-w-0 flex-1 leading-tight">
               <p className="truncate">{en}</p>
               <p className="lang-te truncate text-[10px] opacity-70">{te}</p>
             </div>
+            {badgeKey === 'grievances' && unackCount > 0 && (
+              <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                {unackCount}
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>

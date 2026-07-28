@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useLang } from '@/lib/i18n';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { SCHEMES_SEED } from '@/data/schemesSeed';
@@ -12,14 +13,25 @@ export default function SchemeApply() {
   const { lang, t } = useLang();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [scheme, setScheme] = useState<Scheme | undefined>(
     SCHEMES_SEED.find((s) => s.id === schemeId)
   );
-  const [details, setDetails] = useState({ full_name: '', phone: '', address: '', income: '' });
+  const [details, setDetails] = useState({
+    full_name: searchParams.get('full_name') || '',
+    phone: searchParams.get('phone') || '',
+    address: searchParams.get('address') || '',
+    income: searchParams.get('income') || '',
+  });
   const [files, setFiles] = useState<Record<string, File | null>>({});
+  const [uploadedDocs, setUploadedDocs] = useState<SubmittedDocument[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [draftDialog, setDraftDialog] = useState<null | { updated_at: string; id: string; data: Record<string, unknown> }>(null);
+  const [savedIndicator, setSavedIndicator] = useState<string | null>(null);
+  const draftIdRef = useRef<string | null>(null);
+  const dirtyRef = useRef(false);
 
   useEffect(() => {
     if (!isSupabaseConfigured || !schemeId) return;
@@ -32,6 +44,86 @@ export default function SchemeApply() {
         if (data) setScheme(data as Scheme);
       });
   }, [schemeId]);
+
+  // Load existing draft
+  useEffect(() => {
+    if (!user || !schemeId) return;
+    supabase.from('application_drafts')
+      .select('*')
+      .eq('user_id', user.id).eq('scheme_id', schemeId).maybeSingle()
+      .then(({ data }) => {
+        if (data) {
+          setDraftDialog({ updated_at: data.updated_at, id: data.id, data: data.draft_data as Record<string, unknown> });
+          draftIdRef.current = data.id;
+        }
+      });
+  }, [user, schemeId]);
+
+  // Compute completion %
+  const computeCompletion = () => {
+    if (!scheme) return 0;
+    const requiredFields = ['full_name', 'phone', 'address', 'income'] as const;
+    const filled = requiredFields.filter((f) => details[f]).length;
+    const requiredDocs = scheme.required_documents.length;
+    const docsUploaded = uploadedDocs.length + Object.values(files).filter(Boolean).length;
+    const totalItems = requiredFields.length + requiredDocs;
+    const doneItems = filled + Math.min(docsUploaded, requiredDocs);
+    return Math.round((doneItems / Math.max(totalItems, 1)) * 100);
+  };
+
+  const saveDraft = async () => {
+    if (!user || !scheme) return;
+    const payload = {
+      user_id: user.id,
+      scheme_id: scheme.id,
+      draft_data: { details, uploaded: uploadedDocs } as unknown as never,
+      completion_percentage: computeCompletion(),
+    };
+    const { data, error: err } = await supabase.from('application_drafts')
+      .upsert(payload, { onConflict: 'user_id,scheme_id' })
+      .select().maybeSingle();
+    if (!err && data) {
+      draftIdRef.current = data.id;
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      setSavedIndicator(now);
+      window.setTimeout(() => setSavedIndicator(null), 3000);
+      dirtyRef.current = false;
+    }
+  };
+
+  // Debounced 30s autosave
+  useEffect(() => {
+    if (submitted || !user || !scheme) return;
+    dirtyRef.current = true;
+    const t = window.setTimeout(() => { if (dirtyRef.current) saveDraft(); }, 30000);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [details, uploadedDocs]);
+
+  // beforeunload warning if dirty
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (dirtyRef.current && !submitted) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [submitted]);
+
+  const applyDraft = () => {
+    if (!draftDialog) return;
+    const d = draftDialog.data as { details?: typeof details; uploaded?: SubmittedDocument[] };
+    if (d.details) setDetails({ ...details, ...d.details });
+    if (d.uploaded) setUploadedDocs(d.uploaded);
+    setDraftDialog(null);
+  };
+  const discardDraft = async () => {
+    if (draftDialog) await supabase.from('application_drafts').delete().eq('id', draftDialog.id);
+    draftIdRef.current = null;
+    setDraftDialog(null);
+  };
 
   if (!scheme) {
     return <p className="text-sm text-gray-500">{lang === 'te' ? 'పథకం కనుగొనబడలేదు.' : 'Scheme not found.'}</p>;
@@ -66,7 +158,7 @@ export default function SchemeApply() {
       // Only documents known upfront (the scheme's required_documents) are
       // collected here. Anything staff realize they still need afterward is
       // requested through the message thread on the citizen's application.
-      const submittedDocuments: SubmittedDocument[] = [];
+      const submittedDocuments: SubmittedDocument[] = [...uploadedDocs];
       for (const doc of scheme.required_documents) {
         const file = files[doc];
         if (file) {
@@ -75,7 +167,12 @@ export default function SchemeApply() {
             .from('applications')
             .upload(path, file, { upsert: true });
           if (uploadError) throw uploadError;
-          submittedDocuments.push({ document_type: doc, file_url: path });
+          const idx = submittedDocuments.findIndex((s) => s.document_type === doc);
+          if (idx >= 0) submittedDocuments[idx] = { document_type: doc, file_url: path };
+          else submittedDocuments.push({ document_type: doc, file_url: path });
+          // Also save draft after each file upload
+          setUploadedDocs(submittedDocuments);
+          await saveDraft();
         }
       }
 
@@ -88,6 +185,7 @@ export default function SchemeApply() {
       });
       if (insertError) throw insertError;
 
+      dirtyRef.current = false;
       setSubmitted(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
@@ -118,7 +216,36 @@ export default function SchemeApply() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="relative space-y-4">
+      {savedIndicator && (
+        <div className="fixed right-4 top-4 z-40 rounded-full bg-green-600 px-3 py-1 text-xs font-semibold text-white shadow-lg">
+          {lang === 'te' ? `ముసాయిదా సేవ్ అయింది ${savedIndicator}` : `Draft saved ${savedIndicator}`}
+        </div>
+      )}
+
+      {draftDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="max-w-md rounded-xl bg-white p-5 shadow-lg">
+            <h3 className="text-base font-bold text-ap-blue">
+              {lang === 'te' ? 'అసంపూర్ణ దరఖాస్తు' : 'Unfinished application'}
+            </h3>
+            <p className="mt-2 text-sm text-gray-700">
+              {lang === 'te'
+                ? `మీకు ఈ పథకానికి అసంపూర్ణ దరఖాస్తు ఉంది (చివరిగా ${new Date(draftDialog.updated_at).toLocaleString()}). కొనసాగించాలా?`
+                : `You have an unfinished application for this scheme (last saved ${new Date(draftDialog.updated_at).toLocaleString()}). Continue where you left off?`}
+            </p>
+            <div className="mt-4 flex justify-end gap-2">
+              <button onClick={discardDraft} className="rounded-full border border-gray-300 px-3 py-1.5 text-xs text-gray-700">
+                {lang === 'te' ? 'కొత్తగా ప్రారంభించు' : 'Start Fresh'}
+              </button>
+              <button onClick={applyDraft} className="rounded-full bg-ap-orange px-3 py-1.5 text-xs font-semibold text-white">
+                {lang === 'te' ? 'ముసాయిదా కొనసాగించు' : 'Continue Draft'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <h1 className="text-xl font-bold text-ap-blue">{lang === 'te' ? scheme.name_telugu : scheme.name}</h1>
       <p className="text-sm text-gray-600">{scheme.description}</p>
 

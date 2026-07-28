@@ -135,6 +135,9 @@ export interface SachivalayamCenter {
   latitude: number;
   longitude: number;
   phone: string;
+  busy_level?: 'low' | 'moderate' | 'busy';
+  busy_updated_at?: string;
+  busy_note?: string | null;
 }
 
 export interface MeesevaCenter {
@@ -197,4 +200,39 @@ export interface Profile {
   full_name: string | null;
   email: string | null;
   created_at?: string;
+}
+
+export type GrievanceStatus = 'raised' | 'acknowledged' | 'resolved';
+
+export interface Grievance {
+  id: string;
+  application_id: string;
+  user_id: string;
+  reason: string | null;
+  status: GrievanceStatus;
+  raised_at: string;
+  acknowledged_at: string | null;
+  resolved_at: string | null;
+  admin_response: string | null;
+}
+
+export interface ApplicationStatusHistory {
+  id: string;
+  application_id: string;
+  status: ApplicationStatus;
+  changed_at: string;
+  changed_by_staff: boolean;
+  note: string | null;
+  document_requested: string | null;
+}
+
+export interface ApplicationDraft {
+  id: string;
+  user_id: string;
+  scheme_id: string;
+  draft_data: Record<string, unknown>;
+  completion_percentage: number;
+  created_at: string;
+  updated_at: string;
+  scheme?: Scheme;
 }

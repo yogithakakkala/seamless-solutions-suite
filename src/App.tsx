@@ -12,6 +12,7 @@ import Home from '@/pages/Home';
 import Schemes from '@/pages/Schemes';
 import SchemeApply from '@/pages/SchemeApply';
 import EligibilityCalculator from '@/pages/EligibilityCalculator';
+import SchemeRecommender from '@/pages/SchemeRecommender';
 import DocumentChecklist from '@/pages/DocumentChecklist';
 import ApplicationTracker from '@/pages/ApplicationTracker';
 const NearestCenter = lazy(() => import('@/pages/NearestCenter'));
@@ -28,6 +29,8 @@ import AdminApplications from '@/pages/admin/AdminApplications';
 import AdminApplicationDetail from '@/pages/admin/AdminApplicationDetail';
 import AdminContact from '@/pages/admin/AdminContact';
 import AdminStatusUpdate from '@/pages/admin/AdminStatusUpdate';
+import AdminCenters from '@/pages/admin/AdminCenters';
+import AdminGrievances from '@/pages/admin/AdminGrievances';
 
 const citizen = (node: React.ReactNode) => <Layout><RequireCitizen>{node}</RequireCitizen></Layout>;
 const citizenAuth = (node: React.ReactNode) => <Layout><RequireCitizen><RequireAuth>{node}</RequireAuth></RequireCitizen></Layout>;
@@ -41,6 +44,7 @@ export default function App() {
         <Route path="/schemes" element={citizen(<Schemes />)} />
         <Route path="/schemes/:schemeId/apply" element={citizenAuth(<SchemeApply />)} />
         <Route path="/eligibility" element={citizen(<EligibilityCalculator />)} />
+        <Route path="/recommender" element={citizen(<SchemeRecommender />)} />
         <Route path="/documents" element={citizenAuth(<DocumentChecklist />)} />
         <Route path="/track" element={citizen(<ApplicationTracker />)} />
         <Route path="/certificate" element={citizen(<ApplicationTracker />)} />
@@ -63,8 +67,10 @@ export default function App() {
           <Route index element={<AdminApplications />} />
           <Route path="applications" element={<AdminApplications />} />
           <Route path="applications/:applicationId" element={<AdminApplicationDetail />} />
+          <Route path="grievances" element={<AdminGrievances />} />
           <Route path="contact" element={<AdminContact />} />
           <Route path="schemes" element={<AdminSchemes />} />
+          <Route path="centers" element={<AdminCenters />} />
           <Route path="status" element={<AdminStatusUpdate />} />
         </Route>
       </Routes>

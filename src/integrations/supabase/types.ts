@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      application_drafts: {
+        Row: {
+          completion_percentage: number
+          created_at: string
+          draft_data: Json
+          id: string
+          scheme_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completion_percentage?: number
+          created_at?: string
+          draft_data?: Json
+          id?: string
+          scheme_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completion_percentage?: number
+          created_at?: string
+          draft_data?: Json
+          id?: string
+          scheme_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_drafts_scheme_id_fkey"
+            columns: ["scheme_id"]
+            isOneToOne: false
+            referencedRelation: "schemes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       application_messages: {
         Row: {
           application_id: string
@@ -48,6 +86,44 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "application_messages_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      application_status_history: {
+        Row: {
+          application_id: string
+          changed_at: string
+          changed_by_staff: boolean
+          document_requested: string | null
+          id: string
+          note: string | null
+          status: string
+        }
+        Insert: {
+          application_id: string
+          changed_at?: string
+          changed_by_staff?: boolean
+          document_requested?: string | null
+          id?: string
+          note?: string | null
+          status: string
+        }
+        Update: {
+          application_id?: string
+          changed_at?: string
+          changed_by_staff?: boolean
+          document_requested?: string | null
+          id?: string
+          note?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_status_history_application_id_fkey"
             columns: ["application_id"]
             isOneToOne: false
             referencedRelation: "applications"
@@ -166,6 +242,50 @@ export type Database = {
         }
         Relationships: []
       }
+      grievances: {
+        Row: {
+          acknowledged_at: string | null
+          admin_response: string | null
+          application_id: string
+          id: string
+          raised_at: string
+          reason: string | null
+          resolved_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          admin_response?: string | null
+          application_id: string
+          id?: string
+          raised_at?: string
+          reason?: string | null
+          resolved_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          admin_response?: string | null
+          application_id?: string
+          id?: string
+          raised_at?: string
+          reason?: string | null
+          resolved_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grievances_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meeseva_centers: {
         Row: {
           address: string
@@ -236,6 +356,9 @@ export type Database = {
         Row: {
           address: string
           area: string
+          busy_level: string
+          busy_note: string | null
+          busy_updated_at: string
           created_at: string
           district: string
           id: string
@@ -250,6 +373,9 @@ export type Database = {
         Insert: {
           address: string
           area: string
+          busy_level?: string
+          busy_note?: string | null
+          busy_updated_at?: string
           created_at?: string
           district: string
           id?: string
@@ -264,6 +390,9 @@ export type Database = {
         Update: {
           address?: string
           area?: string
+          busy_level?: string
+          busy_note?: string | null
+          busy_updated_at?: string
           created_at?: string
           district?: string
           id?: string
@@ -382,6 +511,7 @@ export type Database = {
           updated_at: string
         }[]
       }
+      notify_stale_applications: { Args: never; Returns: undefined }
       send_email: {
         Args: { _html: string; _subject: string; _to: string }
         Returns: undefined
