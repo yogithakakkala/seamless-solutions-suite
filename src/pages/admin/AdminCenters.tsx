@@ -21,9 +21,8 @@ export default function AdminCenters() {
   const setBusy = async (id: string, level: BusyLevel) => {
     setSavingId(id);
     const note = noteDrafts[id];
-    const patch: Record<string, unknown> = { busy_level: level, busy_updated_at: new Date().toISOString() };
-    if (note !== undefined) patch.busy_note = note || null;
-    const { error } = await supabase.from('sachivalayam_centers').update(patch).eq('id', id);
+    const patch = { busy_level: level, busy_updated_at: new Date().toISOString(), ...(note !== undefined ? { busy_note: note || null } : {}) };
+    const { error } = await supabase.from('sachivalayam_centers').update(patch as never).eq('id', id);
     setSavingId(null);
     if (error) toast.error(error.message);
     else { toast.success('Busy level updated'); load(); }
