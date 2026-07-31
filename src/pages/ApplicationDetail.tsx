@@ -149,6 +149,15 @@ export default function ApplicationDetail() {
         </h1>
       </div>
 
+      {application.token_number && (
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-ap-blue/10 bg-white p-3 shadow-sm">
+          <span className="text-xs text-gray-500">
+            {lang === 'te' ? 'దరఖాస్తు నంబర్' : 'Application number'}
+          </span>
+          <span className="select-all font-mono text-sm font-bold text-ap-blue">{application.token_number}</span>
+        </div>
+      )}
+
       <ApplicationTimeline application={application} />
 
       {pendingDocRequest && (
