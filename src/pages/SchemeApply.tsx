@@ -244,7 +244,7 @@ export default function SchemeApply() {
           </button>
           {tokenNumber && (
             <button
-              onClick={() => navigate(`/tracker?token=${encodeURIComponent(tokenNumber)}`)}
+              onClick={() => navigate(`/track?token=${encodeURIComponent(tokenNumber)}`)}
               className="rounded-full border border-ap-blue/30 px-4 py-2 text-sm font-medium text-ap-blue"
             >
               {lang === 'te' ? 'దరఖాస్తును ట్రాక్ చేయండి' : 'Track application'}
