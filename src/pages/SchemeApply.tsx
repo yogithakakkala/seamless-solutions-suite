@@ -27,6 +27,8 @@ export default function SchemeApply() {
   const [uploadedDocs, setUploadedDocs] = useState<SubmittedDocument[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [tokenNumber, setTokenNumber] = useState<string | null>(null);
+  const [newAppId, setNewAppId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [draftDialog, setDraftDialog] = useState<null | { updated_at: string; id: string; data: Record<string, unknown> }>(null);
   const [savedIndicator, setSavedIndicator] = useState<string | null>(null);
