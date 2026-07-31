@@ -176,15 +176,21 @@ export default function SchemeApply() {
         }
       }
 
-      const { error: insertError } = await supabase.from('applications').insert({
-        user_id: user.id,
-        scheme_id: scheme.id,
-        status: 'submitted',
-        applicant_details: details,
-        submitted_documents: submittedDocuments as unknown as never,
-      });
+      const { data: inserted, error: insertError } = await supabase
+        .from('applications')
+        .insert({
+          user_id: user.id,
+          scheme_id: scheme.id,
+          status: 'submitted',
+          applicant_details: details,
+          submitted_documents: submittedDocuments as unknown as never,
+        })
+        .select('id, token_number')
+        .single();
       if (insertError) throw insertError;
 
+      setTokenNumber(inserted?.token_number ?? null);
+      setNewAppId(inserted?.id ?? null);
       dirtyRef.current = false;
       setSubmitted(true);
     } catch (err) {
@@ -205,12 +211,52 @@ export default function SchemeApply() {
             ? 'సిబ్బంది దీన్ని సమీక్షిస్తారు. అదనపు పత్రాలు అవసరమైతే, మీకు మెసేజ్ వస్తుంది.'
             : "Staff will review it — if they need anything else, you'll get a message on this application."}
         </p>
-        <button
-          onClick={() => navigate('/my-applications')}
-          className="mt-3 rounded-full bg-ap-blue px-4 py-2 text-sm font-medium text-white hover:bg-ap-blueLight"
-        >
-          {t('myApplications')}
-        </button>
+        {tokenNumber && (
+          <div className="mx-auto mt-3 max-w-xs rounded-xl border border-green-300 bg-white p-3">
+            <p className="text-xs font-medium text-gray-600">
+              {lang === 'te' ? 'మీ దరఖాస్తు నంబర్' : 'Your application number'}
+            </p>
+            <p className="mt-1 select-all font-mono text-lg font-bold text-ap-blue">{tokenNumber}</p>
+            <button
+              onClick={() => {
+                void navigator.clipboard?.writeText(tokenNumber);
+                toast.success(lang === 'te' ? 'కాపీ చేయబడింది' : 'Copied');
+              }}
+              className="mt-2 rounded-full border border-ap-blue/30 px-3 py-1 text-xs font-semibold text-ap-blue"
+            >
+              {lang === 'te' ? 'కాపీ చేయండి' : 'Copy'}
+            </button>
+            <p className="mt-2 text-[11px] text-gray-500">
+              {lang === 'te'
+                ? 'ట్రాకర్ పేజీలో ఈ నంబర్‌తో స్థితిని ఎప్పుడైనా చూడవచ్చు.'
+                : 'Use this number on the Tracker page to check status anytime.'}
+            </p>
+          </div>
+        )}
+        <div className="mt-3 flex flex-wrap justify-center gap-2">
+          <button
+            onClick={() => navigate('/my-applications')}
+            className="rounded-full bg-ap-blue px-4 py-2 text-sm font-medium text-white hover:bg-ap-blueLight"
+          >
+            {t('myApplications')}
+          </button>
+          {tokenNumber && (
+            <button
+              onClick={() => navigate(`/tracker?token=${encodeURIComponent(tokenNumber)}`)}
+              className="rounded-full border border-ap-blue/30 px-4 py-2 text-sm font-medium text-ap-blue"
+            >
+              {lang === 'te' ? 'దరఖాస్తును ట్రాక్ చేయండి' : 'Track application'}
+            </button>
+          )}
+          {newAppId && (
+            <button
+              onClick={() => navigate(`/my-applications/${newAppId}`)}
+              className="rounded-full border border-ap-blue/30 px-4 py-2 text-sm font-medium text-ap-blue"
+            >
+              {lang === 'te' ? 'వివరాలు చూడండి' : 'View details'}
+            </button>
+          )}
+        </div>
       </div>
     );
   }
