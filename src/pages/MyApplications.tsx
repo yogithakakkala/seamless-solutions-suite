@@ -188,7 +188,12 @@ export default function MyApplications() {
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-500">{new Date(app.created_at).toLocaleDateString()}</p>
+                    <p className="text-xs text-gray-500">
+                      {app.token_number && (
+                        <span className="font-mono font-semibold text-ap-blue">{app.token_number} · </span>
+                      )}
+                      {new Date(app.created_at).toLocaleDateString()}
+                    </p>
                     <div className="mt-2">
                       <MiniProgressBar status={app.status} />
                     </div>

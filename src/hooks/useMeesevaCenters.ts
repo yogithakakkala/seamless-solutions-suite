@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { haversineDistanceKm } from '@/lib/haversine';
 import type { MeesevaCenter } from '@/types';
@@ -11,22 +11,26 @@ import type { MeesevaCenter } from '@/types';
 export function useMeesevaCenters() {
   const [centers, setCenters] = useState<MeesevaCenter[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [lastSynced, setLastSynced] = useState<Date | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    supabase
-      .from('meeseva_centers')
-      .select('*')
-      .then(({ data }) => {
-        if (!cancelled && data) setCenters(data as unknown as MeesevaCenter[]);
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
+  const reload = useCallback(async () => {
+    setLoading(true);
+    const { data, error: err } = await supabase.from('meeseva_centers').select('*').order('area');
+    if (err) setError(err.message);
+    else {
+      setError(null);
+      setCenters((data as unknown as MeesevaCenter[]) ?? []);
+      setLastSynced(new Date());
+    }
+    setLoading(false);
   }, []);
 
-  return { centers, loading };
+  useEffect(() => {
+    void reload();
+  }, [reload]);
+
+  return { centers, loading, error, lastSynced, reload };
 }
 
 /** Returns the top-N MeeSeva centers offering a service, sorted by distance if userLoc known. */

@@ -34,9 +34,27 @@ export default function NearestCenter() {
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState<Tab>('sachivalayam');
   const [sachCenters, setSachCenters] = useState<SachivalayamCenter[]>(CENTERS_SEED);
+  const [sachSyncing, setSachSyncing] = useState(false);
   const [lessCrowdedOnly, setLessCrowdedOnly] = useState(searchParams.get('filter') === 'less');
-  const { centers: meesevaCenters } = useMeesevaCenters();
+  const {
+    centers: meesevaCenters,
+    loading: meesevaLoading,
+    error: meesevaError,
+    lastSynced: meesevaSynced,
+    reload: reloadMeeseva,
+  } = useMeesevaCenters();
   const { loc: userLoc, status: geoStatus, request: retryLocation } = useGeolocation(true);
+
+  const loadSach = async () => {
+    setSachSyncing(true);
+    const { data } = await supabase.from('sachivalayam_centers').select('*');
+    if (data && data.length > 0) setSachCenters(data as SachivalayamCenter[]);
+    setSachSyncing(false);
+  };
+
+  const syncCenters = async () => {
+    await Promise.all([loadSach(), reloadMeeseva()]);
+  };
 
   useEffect(() => {
     if (!isSupabaseConfigured) return;
@@ -100,6 +118,34 @@ export default function NearestCenter() {
       </div>
 
       <LocationPermissionBanner status={geoStatus} onRetry={retryLocation} />
+
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-ap-blue/10 bg-white p-3 text-xs shadow-sm">
+        <button
+          onClick={syncCenters}
+          disabled={sachSyncing || meesevaLoading}
+          className="rounded-full bg-ap-blue px-3 py-1.5 font-semibold text-white disabled:opacity-60"
+        >
+          {sachSyncing || meesevaLoading
+            ? lang === 'te' ? 'సింక్ అవుతోంది…' : 'Syncing…'
+            : lang === 'te' ? '↻ కేంద్రాలను రిఫ్రెష్ చేయండి' : '↻ Sync & Refresh Centers'}
+        </button>
+        <span className="text-ap-blue/80">
+          {lang === 'te' ? 'సచివాలయం' : 'Sachivalayam'}: <strong>{sachCenters.length}</strong>
+          {' · '}
+          {lang === 'te' ? 'మీసేవ' : 'MeeSeva'}: <strong>{meesevaCenters.length}</strong>
+        </span>
+        {meesevaSynced && (
+          <span className="text-gray-400">
+            {lang === 'te' ? 'చివరి సింక్' : 'Last synced'} {meesevaSynced.toLocaleTimeString()}
+          </span>
+        )}
+        {meesevaError && <span className="text-red-600">{meesevaError}</span>}
+        {!meesevaLoading && !meesevaError && meesevaCenters.length === 0 && (
+          <span className="text-orange-600">
+            {lang === 'te' ? 'మీసేవ కేంద్రాలు కనబడలేదు' : 'No MeeSeva centers found'}
+          </span>
+        )}
+      </div>
 
       <div className="inline-flex rounded-full border border-ap-blue/20 bg-white p-1 text-xs font-semibold">
         <button

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useLang } from '@/lib/i18n';
 import { supabase } from '@/lib/supabase';
 import type { ApplicationStatus, PublicApplicationLookup } from '@/types';
@@ -22,13 +23,13 @@ const statusLabel: Record<ApplicationStatus, { en: string; te: string }> = {
 
 export default function ApplicationTracker() {
   const { lang, t } = useLang();
-  const [token, setToken] = useState('');
+  const [searchParams] = useSearchParams();
+  const [token, setToken] = useState(searchParams.get('token') ?? '');
   const [result, setResult] = useState<PublicApplicationLookup | null | 'not_found'>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleCheck = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const q = token.trim();
+  const lookup = useCallback(async (raw: string) => {
+    const q = raw.trim();
     if (!q) return;
     setLoading(true);
     setResult(null);
@@ -41,6 +42,16 @@ export default function ApplicationTracker() {
       setResult(row as PublicApplicationLookup);
     }
     setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    const fromUrl = searchParams.get('token');
+    if (fromUrl) void lookup(fromUrl);
+  }, [searchParams, lookup]);
+
+  const handleCheck = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await lookup(token);
   };
 
   return (
