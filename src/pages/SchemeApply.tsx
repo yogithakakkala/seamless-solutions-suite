@@ -375,6 +375,23 @@ export default function SchemeApply() {
           {submitting ? '...' : t('apply')}
         </button>
       </form>
+
+      <div className="space-y-2 rounded-xl border border-dashed border-ap-orange/50 bg-ap-orange/5 p-4">
+        <p className="text-sm font-semibold text-ap-blue">
+          {lang === 'te' ? 'ఏదైనా పత్రం మీ దగ్గర లేదా?' : 'Missing any of these documents?'}
+        </p>
+        <p className="text-xs text-gray-600">
+          {lang === 'te'
+            ? 'ఈ పత్రాలను సమీప మీసేవ కేంద్రంలో పొందవచ్చు. మీ దగ్గరున్న కేంద్రాన్ని కనుగొనడానికి క్లిక్ చేయండి.'
+            : 'You can get them at a MeeSeva center. Tap below to find the nearest one and what it issues.'}
+        </p>
+        <Link
+          to="/nearest-center"
+          className="inline-flex w-full items-center justify-center rounded-full bg-ap-blue px-4 py-2.5 text-sm font-semibold text-white hover:bg-ap-blue/90 sm:w-auto"
+        >
+          {lang === 'te' ? 'మీసేవ కేంద్రానికి వెళ్లండి' : 'Find a MeeSeva center'}
+        </Link>
+      </div>
     </div>
   );
 }
