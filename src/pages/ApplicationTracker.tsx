@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useLang } from '@/lib/i18n';
 import { supabase } from '@/lib/supabase';
@@ -27,21 +27,35 @@ export default function ApplicationTracker() {
   const [token, setToken] = useState(searchParams.get('token') ?? '');
   const [result, setResult] = useState<PublicApplicationLookup | null | 'not_found'>(null);
   const [loading, setLoading] = useState(false);
+  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
+  const [justUpdated, setJustUpdated] = useState(false);
+  const activeToken = useRef<string | null>(null);
+  const lastStatus = useRef<string | null>(null);
 
-  const lookup = useCallback(async (raw: string) => {
+  const lookup = useCallback(async (raw: string, silent = false) => {
     const q = raw.trim();
     if (!q) return;
-    setLoading(true);
-    setResult(null);
+    activeToken.current = q;
+    if (!silent) {
+      setLoading(true);
+      setResult(null);
+    }
 
     const { data, error } = await supabase.rpc('lookup_application_by_token', { _token: q });
     if (error || !data || (Array.isArray(data) && data.length === 0)) {
-      setResult('not_found');
+      if (!silent) setResult('not_found');
     } else {
       const row = Array.isArray(data) ? data[0] : data;
-      setResult(row as PublicApplicationLookup);
+      const next = row as PublicApplicationLookup;
+      if (lastStatus.current && lastStatus.current !== next.status) {
+        setJustUpdated(true);
+        window.setTimeout(() => setJustUpdated(false), 6000);
+      }
+      lastStatus.current = next.status;
+      setResult(next);
+      setLastRefreshed(new Date());
     }
-    setLoading(false);
+    if (!silent) setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -49,8 +63,29 @@ export default function ApplicationTracker() {
     if (fromUrl) void lookup(fromUrl);
   }, [searchParams, lookup]);
 
+  // Realtime: any status change or new timeline event re-runs the token lookup,
+  // plus a slow poll as a fallback for anonymous visitors whose RLS scope does
+  // not receive postgres_changes for someone else's application row.
+  useEffect(() => {
+    if (!result || result === 'not_found') return;
+    const refresh = () => {
+      if (activeToken.current) void lookup(activeToken.current, true);
+    };
+    const channel = supabase
+      .channel('tracker-' + result.token_number)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'applications' }, refresh)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'application_status_history' }, refresh)
+      .subscribe();
+    const poll = window.setInterval(refresh, 20000);
+    return () => {
+      supabase.removeChannel(channel);
+      window.clearInterval(poll);
+    };
+  }, [result === 'not_found' ? 'nf' : (result?.token_number ?? ''), lookup]);
+
   const handleCheck = async (e: React.FormEvent) => {
     e.preventDefault();
+    lastStatus.current = null;
     await lookup(token);
   };
 
@@ -112,6 +147,24 @@ export default function ApplicationTracker() {
             <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusStyle[result.status]}`}>
               {lang === 'te' ? statusLabel[result.status].te : statusLabel[result.status].en}
             </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-500">
+            <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 font-medium text-green-700">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-500" />
+              {lang === 'te' ? 'ప్రత్యక్ష నవీకరణలు ఆన్‌లో ఉన్నాయి' : 'Live updates on'}
+            </span>
+            {lastRefreshed && (
+              <span>
+                {lang === 'te' ? 'చివరిగా తనిఖీ చేసినది' : 'Last checked'}{' '}
+                {lastRefreshed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            )}
+            {justUpdated && (
+              <span className="rounded-full bg-ap-orange/10 px-2 py-0.5 font-semibold text-ap-orangeDark">
+                {lang === 'te' ? 'స్థితి ఇప్పుడే మారింది' : 'Status just changed'}
+              </span>
+            )}
           </div>
 
           <div className="grid gap-2 text-sm sm:grid-cols-2">
