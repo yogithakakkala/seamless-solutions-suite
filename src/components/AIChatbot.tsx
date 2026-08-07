@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Mic, MicOff, Send, Volume2, VolumeX, X, MessageCircle } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import { useLang } from "@/lib/i18n";
 import {
   createRecognizer,
@@ -148,13 +149,13 @@ export default function AIChatbot() {
                 className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-3 py-2 text-sm leading-relaxed ${
+                  className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed ${
                     m.role === "user"
-                      ? "bg-ap-blue text-white"
-                      : "bg-white text-gray-800 shadow-sm"
+                      ? "whitespace-pre-wrap bg-ap-blue text-white"
+                      : "bg-white text-gray-800 shadow-sm [&_a]:underline [&_li]:ml-4 [&_li]:list-disc [&_ol_li]:list-decimal [&_p]:mb-2 [&_p:last-child]:mb-0 [&_strong]:font-semibold"
                   }`}
                 >
-                  {m.content}
+                  {m.role === "user" ? m.content : <ReactMarkdown>{m.content}</ReactMarkdown>}
                 </div>
               </div>
             ))}
