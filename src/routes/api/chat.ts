@@ -112,7 +112,7 @@ RESPONSE STYLE:
             Authorization: `Bearer ${key}`,
           },
           body: JSON.stringify({
-            model: "google/gemini-3-flash-preview",
+            model: "google/gemini-3.6-flash",
             messages: [{ role: "system", content: system }, ...userMessages],
           }),
         });
