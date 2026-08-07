@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Mic, MicOff, Send, Volume2, VolumeX, X, MessageCircle } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import { useLang } from "@/lib/i18n";
 import {
   createRecognizer,
@@ -105,7 +106,7 @@ export default function AIChatbot() {
   return (
     <>
       {open && (
-        <div className="fixed bottom-24 right-4 z-50 flex w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-ap-blue/15 bg-white shadow-2xl">
+        <div className="fixed bottom-40 right-4 z-50 flex w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-ap-blue/15 bg-white shadow-2xl">
           <div className="flex items-center justify-between bg-ap-blue px-4 py-3 text-white">
             <div>
               <p className="font-semibold">
@@ -148,13 +149,13 @@ export default function AIChatbot() {
                 className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-3 py-2 text-sm leading-relaxed ${
+                  className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed ${
                     m.role === "user"
-                      ? "bg-ap-blue text-white"
-                      : "bg-white text-gray-800 shadow-sm"
+                      ? "whitespace-pre-wrap bg-ap-blue text-white"
+                      : "bg-white text-gray-800 shadow-sm [&_a]:underline [&_li]:ml-4 [&_li]:list-disc [&_ol_li]:list-decimal [&_p]:mb-2 [&_p:last-child]:mb-0 [&_strong]:font-semibold"
                   }`}
                 >
-                  {m.content}
+                  {m.role === "user" ? m.content : <ReactMarkdown>{m.content}</ReactMarkdown>}
                 </div>
               </div>
             ))}
@@ -239,7 +240,7 @@ export default function AIChatbot() {
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label={lang === "te" ? "సహాయకుడు" : "Assistant"}
-        className="fixed bottom-20 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-ap-orange text-white shadow-lg hover:bg-ap-orangeDark"
+        className="fixed bottom-20 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-ap-orange text-white shadow-lg hover:bg-ap-orangeDark"
       >
         {open ? <X size={24} /> : <MessageCircle size={24} />}
       </button>
