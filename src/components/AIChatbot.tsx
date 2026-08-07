@@ -105,7 +105,7 @@ export default function AIChatbot() {
   return (
     <>
       {open && (
-        <div className="fixed bottom-24 right-4 z-50 flex w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-ap-blue/15 bg-white shadow-2xl">
+        <div className="fixed bottom-40 right-4 z-50 flex w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-ap-blue/15 bg-white shadow-2xl">
           <div className="flex items-center justify-between bg-ap-blue px-4 py-3 text-white">
             <div>
               <p className="font-semibold">
@@ -239,7 +239,7 @@ export default function AIChatbot() {
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label={lang === "te" ? "సహాయకుడు" : "Assistant"}
-        className="fixed bottom-20 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-ap-orange text-white shadow-lg hover:bg-ap-orangeDark"
+        className="fixed bottom-20 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-ap-orange text-white shadow-lg hover:bg-ap-orangeDark"
       >
         {open ? <X size={24} /> : <MessageCircle size={24} />}
       </button>
