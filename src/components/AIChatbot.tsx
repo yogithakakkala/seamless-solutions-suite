@@ -266,7 +266,9 @@ export default function AIChatbot() {
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label={lang === "te" ? "సహాయకుడు" : "Assistant"}
-        className="fixed bottom-5 right-4 z-[60] flex h-14 w-14 items-center justify-center rounded-full bg-ap-orange text-white shadow-lg hover:bg-ap-orangeDark"
+        className={`fixed bottom-5 right-4 z-[60] h-14 w-14 items-center justify-center rounded-full bg-ap-orange text-white shadow-lg hover:bg-ap-orangeDark ${
+          open ? "hidden md:flex" : "flex"
+        }`}
       >
         {open ? <X size={24} /> : <MessageCircle size={24} />}
       </button>

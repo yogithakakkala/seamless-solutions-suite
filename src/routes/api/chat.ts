@@ -8,10 +8,13 @@ export const Route = createFileRoute("/api/chat")({
       POST: async ({ request }) => {
         const key = process.env.LOVABLE_API_KEY;
         if (!key) {
-          return new Response(JSON.stringify({ error: "Missing LOVABLE_API_KEY" }), {
-            status: 500,
-            headers: { "content-type": "application/json" },
-          });
+          return new Response(
+            JSON.stringify({
+              error:
+                "SachiBot's AI service is not reachable from this deployment. It works automatically on the Lovable preview and published Lovable site.",
+            }),
+            { status: 503, headers: { "content-type": "application/json" } },
+          );
         }
 
         let body: { messages?: ChatMessage[]; lang?: "en" | "te" };
