@@ -140,41 +140,63 @@ export default function CitizenSidebar() {
 
   return (
     <>
-      {/* Mobile top bar */}
-      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-ap-blue/10 bg-white px-4 py-3 md:hidden">
+      {/* Mobile + tablet top bar (56px) */}
+      <div className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-ap-blue/10 bg-white px-3 lg:hidden">
         <button
           onClick={() => setOpen(true)}
-          className="rounded-lg p-1.5 text-ap-blue hover:bg-ap-blue/5"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-ap-blue hover:bg-ap-blue/5"
           aria-label="Open menu"
         >
           <Menu size={24} />
         </button>
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-ap-orange bg-ap-blue text-xs font-bold text-white">
+        <NavLink to="/" className="flex min-w-0 flex-1 items-center gap-2">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-ap-orange bg-ap-blue text-xs font-bold text-white">
             AP
           </div>
-          <p className="text-base font-bold text-ap-blue">SachiSeva</p>
-        </div>
-        <div className="w-10" />
+          <div className="min-w-0 leading-tight">
+            <p className="truncate text-base font-bold text-ap-blue">SachiSeva</p>
+            <p className="lang-te truncate text-[10px] text-ap-orangeDark">సచిసేవ</p>
+          </div>
+        </NavLink>
+        <button
+          onClick={toggle}
+          className="flex h-9 shrink-0 items-center gap-1 rounded-full border border-ap-blue/20 px-2.5 text-sm font-medium text-ap-blue hover:bg-ap-blue/5"
+          aria-label="Toggle language"
+        >
+          <Languages size={16} />
+          {lang === 'en' ? 'తె' : 'EN'}
+        </button>
+        {user ? (
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ap-orange text-xs font-bold text-white">
+            {initial}
+          </div>
+        ) : (
+          <NavLink
+            to="/login"
+            className="flex h-9 shrink-0 items-center gap-1 rounded-full bg-ap-orange px-3 text-sm font-semibold text-white"
+          >
+            <User size={16} />
+          </NavLink>
+        )}
       </div>
 
-      {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-screen md:block">{content}</aside>
+      {/* Desktop sidebar (always visible above 1024px) */}
+      <aside className="sticky top-0 hidden h-screen shrink-0 lg:block">{content}</aside>
 
-      {/* Mobile drawer */}
+      {/* Mobile/tablet drawer */}
       {open && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-black/50 md:hidden"
+            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
             onClick={() => setOpen(false)}
           />
-          <div className="fixed inset-y-0 left-0 z-50 md:hidden">
+          <div className="fixed inset-y-0 left-0 z-50 lg:hidden">
             <button
               onClick={() => setOpen(false)}
-              className="absolute right-2 top-2 z-10 rounded-full bg-white/90 p-1 text-ap-blue shadow"
+              className="absolute right-2 top-2 z-10 rounded-full bg-white/90 p-1.5 text-ap-blue shadow"
               aria-label="Close menu"
             >
-              <X size={18} />
+              <X size={20} />
             </button>
             {content}
           </div>
