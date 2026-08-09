@@ -42,6 +42,19 @@ export default function AIChatbot() {
     }
   }, [open, lang, messages.length]);
 
+  // Escape closes the popup (desktop)
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        stopSpeaking();
+        setOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, loading]);
@@ -106,15 +119,27 @@ export default function AIChatbot() {
   return (
     <>
       {open && (
-        <div className="fixed bottom-40 right-4 z-50 flex w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-ap-blue/15 bg-white shadow-2xl">
-          <div className="flex items-center justify-between bg-ap-blue px-4 py-3 text-white">
-            <div>
-              <p className="font-semibold">
-                {lang === "te" ? "SachiSeva సహాయకుడు" : "SachiSeva Assistant"}
-              </p>
-              <p className="text-xs text-white/70">
-                {lang === "te" ? "AI ద్వారా బదులు" : "Powered by AI"}
-              </p>
+        <>
+          {/* Mobile overlay — tap to close */}
+          <div
+            className="fixed inset-0 z-40 bg-black/50 md:hidden"
+            onClick={() => {
+              stopSpeaking();
+              setOpen(false);
+            }}
+          />
+        <div className="fixed inset-x-0 bottom-0 z-50 flex h-[70vh] w-full flex-col overflow-hidden rounded-t-2xl border border-ap-blue/15 bg-white shadow-2xl md:inset-x-auto md:bottom-24 md:right-4 md:h-[500px] md:w-[380px] md:rounded-2xl lg:h-[550px] lg:w-[420px]">
+          <div className="flex h-14 shrink-0 items-center justify-between bg-ap-blue px-3 text-white">
+            <div className="flex min-w-0 items-center gap-2">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-ap-orange bg-white text-[10px] font-bold text-ap-blue">
+                AP
+              </div>
+              <div className="min-w-0 leading-tight">
+                <p className="truncate text-sm font-semibold">SachiBot — AI Assistant</p>
+                <p className="lang-te truncate text-[10px] text-white/70">
+                  {lang === "te" ? "సచీబాట్ — AI సహాయకుడు" : "సచీబాట్"}
+                </p>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               {ttsSupported && (
@@ -142,7 +167,7 @@ export default function AIChatbot() {
             </div>
           </div>
 
-          <div ref={scrollRef} className="max-h-96 flex-1 space-y-3 overflow-y-auto bg-ap-cream/40 p-3">
+          <div ref={scrollRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-ap-cream/40 p-3">
             {messages.map((m, i) => (
               <div
                 key={i}
@@ -202,18 +227,18 @@ export default function AIChatbot() {
               e.preventDefault();
               void send(input);
             }}
-            className="flex items-center gap-2 border-t border-ap-blue/10 bg-white p-2"
+            className="flex shrink-0 items-center gap-2 border-t border-ap-blue/10 bg-white p-2 pb-3"
           >
             {micSupported && (
               <button
                 type="button"
                 onClick={listening ? stopListening : startListening}
                 aria-label="Microphone"
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white ${
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white ${
                   listening ? "bg-red-500 pulse-mic" : "bg-ap-orange hover:bg-ap-orangeDark"
                 }`}
               >
-                {listening ? <MicOff size={18} /> : <Mic size={18} />}
+                {listening ? <MicOff size={20} /> : <Mic size={20} />}
               </button>
             )}
             <input
@@ -222,25 +247,26 @@ export default function AIChatbot() {
               placeholder={
                 lang === "te" ? "మీ ప్రశ్న టైప్ చేయండి..." : "Type your question..."
               }
-              className="flex-1 rounded-full border border-ap-blue/20 bg-ap-cream/50 px-4 py-2 text-sm outline-none focus:border-ap-blue"
+              className="h-11 min-w-0 flex-1 rounded-full border border-ap-blue/20 bg-ap-cream/50 px-4 text-sm outline-none focus:border-ap-blue"
               disabled={loading}
             />
             <button
               type="submit"
               disabled={loading || !input.trim()}
               aria-label="Send"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ap-blue text-white disabled:opacity-50"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-ap-blue text-white disabled:opacity-50"
             >
-              <Send size={16} />
+              <Send size={18} />
             </button>
           </form>
         </div>
+        </>
       )}
 
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label={lang === "te" ? "సహాయకుడు" : "Assistant"}
-        className="fixed bottom-20 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-ap-orange text-white shadow-lg hover:bg-ap-orangeDark"
+        className="fixed bottom-5 right-4 z-[60] flex h-14 w-14 items-center justify-center rounded-full bg-ap-orange text-white shadow-lg hover:bg-ap-orangeDark"
       >
         {open ? <X size={24} /> : <MessageCircle size={24} />}
       </button>
