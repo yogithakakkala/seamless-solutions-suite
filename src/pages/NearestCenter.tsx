@@ -173,7 +173,8 @@ export default function NearestCenter() {
         </label>
       )}
 
-      <div className="h-72 overflow-hidden rounded-xl border border-ap-blue/10 shadow-sm">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
+      <div className="h-[300px] overflow-hidden rounded-xl border border-ap-blue/10 shadow-sm lg:col-span-3 lg:h-[500px]">
         <MapContainer
           key={tab + (userLoc ? '-loc' : '')}
           center={mapCenter}
@@ -208,7 +209,7 @@ export default function NearestCenter() {
         </MapContainer>
       </div>
 
-      <ul className="space-y-2">
+      <ul className="space-y-2 lg:col-span-2 lg:max-h-[500px] lg:overflow-y-auto">
         {sorted.map((c, i) => (
           <li
             key={c.id}
@@ -275,6 +276,7 @@ export default function NearestCenter() {
           </li>
         ))}
       </ul>
+      </div>
     </div>
   );
 }
