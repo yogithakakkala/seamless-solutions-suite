@@ -128,13 +128,13 @@ export default function Home() {
         </div>
       )}
 
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <section className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {cards.map(({ to, Icon, en, te, featured, desc }) => (
           <Link
             key={to}
             to={to}
             className={`flex flex-col items-center gap-2 rounded-xl border p-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
-              featured ? 'col-span-2 border-ap-orange/40 bg-gradient-to-br from-ap-orange/10 to-white sm:col-span-3' : 'border-ap-blue/10 bg-white'
+              featured ? 'border-ap-orange/40 bg-gradient-to-br from-ap-orange/10 to-white md:col-span-2' : 'border-ap-blue/10 bg-white'
             }`}
           >
             <div className={`flex h-11 w-11 items-center justify-center rounded-full ${featured ? 'bg-ap-orange text-white' : 'bg-ap-orange/10 text-ap-orange'}`}>

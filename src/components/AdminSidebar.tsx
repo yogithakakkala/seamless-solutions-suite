@@ -132,33 +132,40 @@ export default function AdminSidebar() {
 
   return (
     <>
-      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-ap-blue/10 bg-ap-blue px-4 py-3 text-white md:hidden">
+      <div className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-ap-blue/10 bg-ap-blue px-3 text-white lg:hidden">
         <button
           onClick={() => setOpen(true)}
-          className="rounded-lg p-1.5 hover:bg-white/10"
+          className="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-white/10"
           aria-label="Open menu"
         >
           <Menu size={24} />
         </button>
         <p className="text-base font-bold">Admin Panel</p>
-        <div className="w-10" />
+        <button
+          onClick={toggle}
+          className="flex h-9 items-center gap-1 rounded-full border border-white/30 px-2.5 text-sm font-medium hover:bg-white/10"
+          aria-label="Toggle language"
+        >
+          <Languages size={16} />
+          {lang === 'en' ? 'తె' : 'EN'}
+        </button>
       </div>
 
-      <aside className="sticky top-0 hidden h-screen md:block">{content}</aside>
+      <aside className="sticky top-0 hidden h-screen shrink-0 lg:block">{content}</aside>
 
       {open && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-black/50 md:hidden"
+            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
             onClick={() => setOpen(false)}
           />
-          <div className="fixed inset-y-0 left-0 z-50 md:hidden">
+          <div className="fixed inset-y-0 left-0 z-50 lg:hidden">
             <button
               onClick={() => setOpen(false)}
-              className="absolute right-2 top-2 z-10 rounded-full bg-white/90 p-1 text-ap-blue shadow"
+              className="absolute right-2 top-2 z-10 rounded-full bg-white/90 p-1.5 text-ap-blue shadow"
               aria-label="Close menu"
             >
-              <X size={18} />
+              <X size={20} />
             </button>
             {content}
           </div>

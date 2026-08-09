@@ -4,10 +4,10 @@ import AIChatbot from './AIChatbot';
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen bg-ap-cream md:flex-row">
+    <div className="flex min-h-screen w-full overflow-x-hidden bg-ap-cream lg:flex-row">
       <CitizenSidebar />
-      <div className="flex min-h-screen flex-1 flex-col">
-        <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">{children}</main>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <main className="mx-auto w-full max-w-5xl min-w-0 flex-1 px-4 py-6 text-sm">{children}</main>
       </div>
       <AIChatbot />
     </div>
