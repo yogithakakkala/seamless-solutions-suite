@@ -22,7 +22,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUnreadUpdates } from '@/hooks/useUnreadUpdates';
 
 const items = [
-  { to: '/', en: 'Home', te: 'హోమ్', Icon: Home, end: true },
+  { to: '/home', en: 'Home', te: 'హోమ్', Icon: Home, end: true },
   { to: '/schemes', en: 'Schemes', te: 'పథకాలు', Icon: ListChecks },
   { to: '/eligibility', en: 'Eligibility Calculator', te: 'అర్హత గణన', Icon: Calculator },
   { to: '/recommender', en: 'Scheme Recommender', te: 'పథకం సిఫార్సు', Icon: Sparkles },
@@ -43,7 +43,7 @@ export default function CitizenSidebar() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/login', { replace: true });
+    navigate('/', { replace: true });
   };
 
   const displayName = profile?.full_name || user?.email?.split('@')[0] || (lang === 'te' ? 'అతిథి' : 'Guest');
@@ -52,7 +52,7 @@ export default function CitizenSidebar() {
   const content = (
     <div className="flex h-full w-[250px] flex-col bg-white shadow-lg">
       <div className="border-b border-ap-blue/10 p-4">
-        <NavLink to="/" onClick={() => setOpen(false)} className="flex items-center gap-3">
+        <NavLink to="/home" onClick={() => setOpen(false)} className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-ap-orange bg-ap-blue text-sm font-bold text-white">
             AP
           </div>
@@ -149,7 +149,7 @@ export default function CitizenSidebar() {
         >
           <Menu size={24} />
         </button>
-        <NavLink to="/" className="flex min-w-0 flex-1 items-center gap-2">
+        <NavLink to="/home" className="flex min-w-0 flex-1 items-center gap-2">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-ap-orange bg-ap-blue text-xs font-bold text-white">
             AP
           </div>

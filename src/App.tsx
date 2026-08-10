@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
 import Layout from '@/components/Layout';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -9,6 +9,8 @@ import { UnreadUpdatesProvider } from '@/hooks/useUnreadUpdates';
 
 
 import Home from '@/pages/Home';
+import Landing from '@/pages/Landing';
+import { useAuth } from '@/hooks/useAuth';
 import Schemes from '@/pages/Schemes';
 import SchemeApply from '@/pages/SchemeApply';
 import EligibilityCalculator from '@/pages/EligibilityCalculator';
@@ -35,27 +37,50 @@ import AdminGrievances from '@/pages/admin/AdminGrievances';
 const citizen = (node: React.ReactNode) => <Layout><RequireCitizen>{node}</RequireCitizen></Layout>;
 const citizenAuth = (node: React.ReactNode) => <Layout><RequireCitizen><RequireAuth>{node}</RequireAuth></RequireCitizen></Layout>;
 
+function RootGate() {
+  const { user, isStaff, loading, profileLoading } = useAuth();
+  if (loading || (user && profileLoading)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-ap-cream">
+        <p className="text-sm text-ap-blue/70">Loading…</p>
+      </div>
+    );
+  }
+  if (user) return <Navigate to={isStaff ? '/admin' : '/home'} replace />;
+  return <Landing />;
+}
+
+function PublicOnly({ children }: { children: React.ReactNode }) {
+  const { user, isStaff, loading, profileLoading } = useAuth();
+  if (loading || (user && profileLoading)) {
+    return <div className="p-6 text-center text-gray-500">Loading...</div>;
+  }
+  if (user) return <Navigate to={isStaff ? '/admin' : '/home'} replace />;
+  return <>{children}</>;
+}
+
 export default function App() {
   return (
     <UnreadUpdatesProvider>
       <Toaster />
       <Routes>
-        <Route path="/" element={citizen(<Home />)} />
-        <Route path="/schemes" element={citizen(<Schemes />)} />
+        <Route path="/" element={<RootGate />} />
+        <Route path="/home" element={citizenAuth(<Home />)} />
+        <Route path="/schemes" element={citizenAuth(<Schemes />)} />
         <Route path="/schemes/:schemeId/apply" element={citizenAuth(<SchemeApply />)} />
-        <Route path="/eligibility" element={citizen(<EligibilityCalculator />)} />
-        <Route path="/recommender" element={citizen(<SchemeRecommender />)} />
+        <Route path="/eligibility" element={citizenAuth(<EligibilityCalculator />)} />
+        <Route path="/recommender" element={citizenAuth(<SchemeRecommender />)} />
         <Route path="/documents" element={citizenAuth(<DocumentChecklist />)} />
-        <Route path="/track" element={citizen(<ApplicationTracker />)} />
-        <Route path="/certificate" element={citizen(<ApplicationTracker />)} />
+        <Route path="/track" element={citizenAuth(<ApplicationTracker />)} />
+        <Route path="/certificate" element={citizenAuth(<ApplicationTracker />)} />
 
-        <Route path="/nearest-center" element={citizen(<Suspense fallback={<p className="p-4 text-sm text-ap-blue/60">Loading map…</p>}><NearestCenter /></Suspense>)} />
+        <Route path="/nearest-center" element={citizenAuth(<Suspense fallback={<p className="p-4 text-sm text-ap-blue/60">Loading map…</p>}><NearestCenter /></Suspense>)} />
         <Route path="/my-applications" element={citizenAuth(<MyApplications />)} />
         <Route path="/my-applications/:applicationId" element={citizenAuth(<ApplicationDetail />)} />
-        <Route path="/sachibot" element={citizen(<SachiBot />)} />
+        <Route path="/sachibot" element={citizenAuth(<SachiBot />)} />
         <Route path="/help" element={citizen(<Help />)} />
-        <Route path="/login" element={<Layout><Login /></Layout>} />
-        <Route path="/signup" element={<Layout><Signup /></Layout>} />
+        <Route path="/login" element={<PublicOnly><Layout><Login /></Layout></PublicOnly>} />
+        <Route path="/signup" element={<PublicOnly><Layout><Signup /></Layout></PublicOnly>} />
         <Route
           path="/admin"
           element={
@@ -73,6 +98,7 @@ export default function App() {
           <Route path="centers" element={<AdminCenters />} />
           <Route path="status" element={<AdminStatusUpdate />} />
         </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </UnreadUpdatesProvider>
   );

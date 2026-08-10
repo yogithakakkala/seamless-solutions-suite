@@ -16,7 +16,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   if (loading) return <div className="p-6 text-center text-gray-500">Loading...</div>;
   if (!user) return <Navigate to="/login" replace />;
   if (profileLoading) return <div className="p-6 text-center text-gray-500">Loading...</div>;
-  if (!isStaff) return <Navigate to="/" replace />;
+  if (!isStaff) return <Navigate to="/home" replace />;
 
   return <>{children}</>;
 }

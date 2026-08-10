@@ -46,7 +46,7 @@ export default function Login() {
     }
 
     const isStaff = await fetchIsStaff(data.user.id);
-    navigate(redirectTo ?? (isStaff ? '/admin' : '/'), { replace: true });
+    navigate(redirectTo ?? (isStaff ? '/admin' : '/home'), { replace: true });
     setLoading(false);
   };
 
