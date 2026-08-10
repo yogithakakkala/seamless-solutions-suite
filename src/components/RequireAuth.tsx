@@ -11,7 +11,7 @@ export default function RequireAuth({ children }: { children: React.ReactNode })
   if (!user) {
     return (
       <Navigate
-        to="/login"
+        to="/"
         replace
         state={{ redirectTo: location.pathname + location.search }}
       />

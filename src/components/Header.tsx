@@ -10,13 +10,13 @@ export default function Header() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/login', { replace: true });
+    navigate('/', { replace: true });
   };
 
   return (
     <header className="sticky top-0 z-40 border-b border-ap-blue/10 bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-        <Link to="/" className="flex items-center gap-3">
+        <Link to="/home" className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-ap-orange bg-ap-blue text-sm font-bold text-white">
             AP
           </div>

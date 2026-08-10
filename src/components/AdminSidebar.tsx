@@ -46,7 +46,7 @@ export default function AdminSidebar() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/login', { replace: true });
+    navigate('/', { replace: true });
   };
 
   const displayName = profile?.full_name || user?.email?.split('@')[0] || 'Staff';
