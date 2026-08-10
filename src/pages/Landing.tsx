@@ -26,20 +26,20 @@ export default function Landing() {
               AP
             </span>
             <span className="min-w-0 leading-tight">
-              <span className="block truncate text-base font-bold text-white">SachiSeva</span>
-              <span className="lang-te block truncate text-[11px] text-ap-orange">సచిసేవ</span>
+              <span className="block text-base font-bold text-white">SachiSeva</span>
+              <span className="lang-te block text-[11px] text-ap-orange">సచిసేవ</span>
             </span>
           </Link>
           <div className="flex shrink-0 items-center gap-2">
             <Link
               to="/login"
-              className="flex min-h-11 items-center rounded-full bg-ap-orange px-3.5 text-xs font-semibold text-white hover:bg-ap-orangeDark sm:text-sm"
+              className="flex min-h-11 items-center rounded-full bg-ap-orange px-3 text-[11px] font-semibold text-white hover:bg-ap-orangeDark sm:px-4 sm:text-sm"
             >
               Login / లాగిన్
             </Link>
             <Link
               to="/signup"
-              className="flex min-h-11 items-center rounded-full border border-white/70 px-3.5 text-xs font-semibold text-white hover:bg-white/10 sm:text-sm"
+              className="flex min-h-11 items-center rounded-full border border-white/70 px-3 text-[11px] font-semibold text-white hover:bg-white/10 sm:px-4 sm:text-sm"
             >
               Sign Up / నమోదు
             </Link>
