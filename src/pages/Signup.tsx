@@ -3,9 +3,10 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
 import { supabase } from '@/lib/supabase';
+import AuthShell from './AuthShell';
 
 export default function Signup() {
-  const { lang, t } = useLang();
+  const { lang } = useLang();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -75,27 +76,27 @@ export default function Signup() {
   };
 
   return (
-    <div className="mx-auto max-w-sm space-y-4 rounded-xl border border-ap-blue/10 bg-white p-6 shadow-sm">
+    <AuthShell>
       <h1 className="text-xl font-bold text-ap-blue">
-        {lang === 'te' ? 'ఖాతా సృష్టించండి' : 'Create Account'}
+        Create Account / <span className="lang-te">ఖాతా సృష్టించండి</span>
       </h1>
 
-      <form onSubmit={handleSignup} className="space-y-3">
+      <form onSubmit={handleSignup} className="mt-4 space-y-3">
         <input
           required
-          placeholder={lang === 'te' ? 'పూర్తి పేరు' : 'Full name'}
+          placeholder="Full name / పూర్తి పేరు"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 p-2.5 text-sm"
+          className="h-12 w-full rounded-lg border border-gray-300 px-3 text-sm"
         />
         <input
           type="email"
           required
           autoComplete="email"
-          placeholder={lang === 'te' ? 'ఇమెయిల్' : 'Email'}
+          placeholder="Email / ఇమెయిల్"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 p-2.5 text-sm"
+          className="h-12 w-full rounded-lg border border-gray-300 px-3 text-sm"
         />
         <div className="relative">
           <input
@@ -103,10 +104,10 @@ export default function Signup() {
             required
             minLength={6}
             autoComplete="new-password"
-            placeholder={lang === 'te' ? 'పాస్‌వర్డ్ (కనీసం 6)' : 'Password (min 6)'}
+            placeholder="Password (min 6) / పాస్‌వర్డ్"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 p-2.5 pr-10 text-sm"
+            className="h-12 w-full rounded-lg border border-gray-300 px-3 pr-10 text-sm"
           />
           <button
             type="button"
@@ -120,49 +121,42 @@ export default function Signup() {
         <input
           type={showPassword ? 'text' : 'password'}
           required
-          placeholder={lang === 'te' ? 'పాస్‌వర్డ్ నిర్ధారించండి' : 'Confirm password'}
+          placeholder="Confirm password / పాస్‌వర్డ్ నిర్ధారించండి"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 p-2.5 text-sm"
+          className="h-12 w-full rounded-lg border border-gray-300 px-3 text-sm"
         />
         <div>
           <input
             type="password"
-            placeholder={lang === 'te' ? 'సిబ్బంది కీ (ఐచ్ఛికం)' : 'Staff Key (optional)'}
+            placeholder="Staff Key (optional) / సిబ్బంది కీ"
             value={adminKey}
             onChange={(e) => setAdminKey(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 p-2.5 text-sm"
+            className="h-12 w-full rounded-lg border border-gray-300 px-3 text-sm"
           />
           <p className="mt-1 text-xs text-gray-400">
-            {lang === 'te'
-              ? 'పౌరులు దీన్ని ఖాళీగా వదిలేయండి.'
-              : 'Leave blank if you are a citizen.'}
+            Leave blank if you are a citizen. <span className="lang-te">పౌరులు ఖాళీగా వదిలేయండి.</span>
           </p>
         </div>
 
-        {error && (
-          <p className="rounded-lg bg-red-50 p-2.5 text-sm text-red-700">{error}</p>
-        )}
+        {error && <p className="rounded-lg bg-red-50 p-2.5 text-sm text-red-700">{error}</p>}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-full bg-ap-orange py-2.5 font-semibold text-white hover:bg-ap-orangeDark disabled:opacity-60"
+          className="h-12 w-full rounded-lg bg-ap-orange font-bold text-white hover:bg-ap-orangeDark disabled:opacity-60"
         >
-          {loading ? '...' : lang === 'te' ? 'ఖాతా సృష్టించండి' : 'Create Account'}
+          {loading ? '...' : 'Create Account / ఖాతా సృష్టించండి'}
         </button>
       </form>
 
-      <p className="text-center text-sm text-gray-600">
-        {lang === 'te' ? 'ఇప్పటికే ఖాతా ఉందా?' : 'Already have an account?'}{' '}
-        <Link
-          to="/login"
-          state={location.state}
-          className="font-semibold text-ap-orange hover:underline"
-        >
-          {t('login')}
-        </Link>
+      <p className="mt-4 text-center text-xs text-gray-600">
+        Already have an account?{' '}
+        <Link to="/login" state={location.state} className="font-semibold text-ap-orange hover:underline">
+          Login
+        </Link>{' '}
+        <span className="lang-te">/ ఇప్పటికే ఖాతా ఉందా? లాగిన్</span>
       </p>
-    </div>
+    </AuthShell>
   );
 }

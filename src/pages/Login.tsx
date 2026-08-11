@@ -8,7 +8,7 @@ import AuthShell from './AuthShell';
 
 export default function Login() {
 
-  const { lang, t } = useLang();
+  const { lang } = useLang();
   const navigate = useNavigate();
   const location = useLocation();
   const redirectTo = (location.state as { redirectTo?: string } | null)?.redirectTo;
