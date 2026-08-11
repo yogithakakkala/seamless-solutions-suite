@@ -119,3 +119,8 @@ body {
 @layer base {
   * { border-color: var(--color-border); }
 }
+
+[data-lovable-badge],
+.lovable-badge {
+  display: none !important;
+}
