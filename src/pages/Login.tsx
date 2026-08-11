@@ -4,10 +4,11 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
 import { supabase } from '@/lib/supabase';
 import { fetchIsStaff } from '@/hooks/useAuth';
+import AuthShell from './AuthShell';
 
 export default function Login() {
 
-  const { lang, t } = useLang();
+  const { lang } = useLang();
   const navigate = useNavigate();
   const location = useLocation();
   const redirectTo = (location.state as { redirectTo?: string } | null)?.redirectTo;
@@ -55,39 +56,36 @@ export default function Login() {
 
 
   return (
-    <div className="mx-auto max-w-sm space-y-4 rounded-xl border border-ap-blue/10 bg-white p-6 shadow-sm">
-      <div>
-        <h1 className="text-xl font-bold text-ap-blue">{t('login')}</h1>
-        <p className="mt-1 text-xs text-gray-500">
-          {lang === 'te'
-            ? 'పథకాలకు దరఖాస్తు చేయడానికి లాగిన్ అవ్వండి.'
-            : 'Log in to apply for schemes and track your applications.'}
-        </p>
-      </div>
+    <AuthShell>
+      <h1 className="text-xl font-bold text-ap-blue">Login / <span className="lang-te">లాగిన్</span></h1>
+      <p className="mt-1 text-xs text-gray-500">
+        Log in to apply for schemes and track your applications.
+      </p>
+      <p className="lang-te mt-0.5 text-xs text-gray-400">
+        పథకాలకు దరఖాస్తు చేయడానికి లాగిన్ అవ్వండి.
+      </p>
 
-      {notice && (
-        <p className="rounded-lg bg-green-50 p-2.5 text-sm text-green-700">{notice}</p>
-      )}
+      {notice && <p className="mt-4 rounded-lg bg-green-50 p-2.5 text-sm text-green-700">{notice}</p>}
 
-      <form onSubmit={handleLogin} className="space-y-3">
+      <form onSubmit={handleLogin} className="mt-4 space-y-3">
         <input
           type="email"
           required
           autoComplete="email"
-          placeholder={lang === 'te' ? 'ఇమెయిల్' : 'Email'}
+          placeholder="Email / ఇమెయిల్"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 p-2.5 text-sm"
+          className="h-12 w-full rounded-lg border border-gray-300 px-3 text-sm"
         />
         <div className="relative">
           <input
             type={showPassword ? 'text' : 'password'}
             required
             autoComplete="current-password"
-            placeholder={lang === 'te' ? 'పాస్‌వర్డ్' : 'Password'}
+            placeholder="Password / పాస్‌వర్డ్"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 p-2.5 pr-10 text-sm"
+            className="h-12 w-full rounded-lg border border-gray-300 px-3 pr-10 text-sm"
           />
           <button
             type="button"
@@ -99,33 +97,24 @@ export default function Login() {
           </button>
         </div>
 
-        {error && (
-          <p className="rounded-lg bg-red-50 p-2.5 text-sm text-red-700">{error}</p>
-        )}
+        {error && <p className="rounded-lg bg-red-50 p-2.5 text-sm text-red-700">{error}</p>}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-full bg-ap-orange py-2.5 font-semibold text-white hover:bg-ap-orangeDark disabled:opacity-60"
+          className="h-12 w-full rounded-lg bg-ap-orange font-bold text-white hover:bg-ap-orangeDark disabled:opacity-60"
         >
-          {loading ? '...' : t('login')}
+          {loading ? '...' : 'Login / లాగిన్'}
         </button>
       </form>
 
-
-
-
-      <p className="text-center text-sm text-gray-600">
-
-        {lang === 'te' ? 'ఖాతా లేదా?' : "Don't have an account?"}{' '}
-        <Link
-          to="/signup"
-          state={location.state}
-          className="font-semibold text-ap-orange hover:underline"
-        >
-          {lang === 'te' ? 'ఖాతా సృష్టించండి' : 'Sign Up'}
-        </Link>
+      <p className="mt-4 text-center text-xs text-gray-600">
+        Don't have an account?{' '}
+        <Link to="/signup" state={location.state} className="font-semibold text-ap-orange hover:underline">
+          Sign Up
+        </Link>{' '}
+        <span className="lang-te">/ ఖాతా లేదా? నమోదు చేయండి</span>
       </p>
-    </div>
+    </AuthShell>
   );
 }

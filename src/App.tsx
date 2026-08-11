@@ -79,8 +79,8 @@ export default function App() {
         <Route path="/my-applications/:applicationId" element={citizenAuth(<ApplicationDetail />)} />
         <Route path="/sachibot" element={citizenAuth(<SachiBot />)} />
         <Route path="/help" element={citizen(<Help />)} />
-        <Route path="/login" element={<PublicOnly><Layout><Login /></Layout></PublicOnly>} />
-        <Route path="/signup" element={<PublicOnly><Layout><Signup /></Layout></PublicOnly>} />
+        <Route path="/login" element={<PublicOnly><Login /></PublicOnly>} />
+        <Route path="/signup" element={<PublicOnly><Signup /></PublicOnly>} />
         <Route
           path="/admin"
           element={
