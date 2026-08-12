@@ -44,6 +44,12 @@ export default function AIChatbot() {
 
   // Escape closes the popup (desktop)
   useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener('sachibot:open', onOpen);
+    return () => window.removeEventListener('sachibot:open', onOpen);
+  }, []);
+
+  useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {

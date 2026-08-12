@@ -9,54 +9,19 @@ import { haversineDistanceKm } from '@/lib/haversine';
 import type { SachivalayamCenter } from '@/types';
 
 const cards = [
-  {
-    to: '/recommender',
-    Icon: Sparkles,
-    en: 'Find Schemes For Me',
-    te: 'నాకు సరిపోయే పథకాలు కనుగొనండి',
-    desc: {
-      en: 'Answer 8 simple questions and see all schemes you qualify for instantly.',
-      te: '8 సరళమైన ప్రశ్నలకు సమాధానం ఇవ్వండి, మీరు అర్హులైన అన్ని పథకాలను వెంటనే చూడండి.',
-    },
-    featured: true,
-  },
-  {
-    to: '/eligibility',
-    Icon: Calculator,
-    en: 'Check Scheme Eligibility',
-    te: 'పథక అర్హతను తనిఖీ చేయండి',
-  },
-  {
-    to: '/track',
-    Icon: BadgeCheck,
-    en: 'Track My Application',
-    te: 'నా దరఖాస్తును ట్రాక్ చేయండి',
-  },
-  {
-    to: '/nearest-center',
-    Icon: MapPin,
-    en: 'Find Nearest Sachivalayam Center',
-    te: 'సమీప సచివాలయ కేంద్రాన్ని కనుగొనండి',
-  },
-  {
-    to: '/my-applications',
-    Icon: FolderClock,
-    en: 'My Applications',
-    te: 'నా దరఖాస్తులు',
-  },
-  {
-    to: '/documents',
-    Icon: ClipboardList,
-    en: 'Document Checklist',
-    te: 'పత్రాల జాబితా',
-  },
+  { to: '/recommender', Icon: Sparkles, en: 'Find Schemes For Me', te: 'నా పథకాలు కనుగొనండి' },
+  { to: '/eligibility', Icon: Calculator, en: 'Check Scheme Eligibility', te: 'పథకం అర్హత తనిఖీ' },
+  { to: '/track', Icon: BadgeCheck, en: 'Track My Application', te: 'దరఖాస్తు ట్రాక్' },
+  { to: '/nearest-center', Icon: MapPin, en: 'Find Nearest Sachivalayam Center', te: 'సమీప సచివాలయం కనుగొనండి' },
+  { to: '/my-applications', Icon: FolderClock, en: 'My Applications', te: 'నా దరఖాస్తులు' },
+  { to: '/documents', Icon: ClipboardList, en: 'Document Checklist', te: 'పత్రాల చెక్‌లిస్ట్' },
 ];
 
 const steps = [
-  { en: 'Check if you qualify using the Eligibility Calculator', te: 'అర్హత గణన ద్వారా మీరు అర్హులో లేదో చూడండి' },
-  { en: 'See which documents you need, and where to get missing ones', te: 'మీకు ఏ పత్రాలు కావాలో, లేనివి ఎక్కడ పొందాలో చూడండి' },
-  { en: 'Apply online for the scheme or service', te: 'పథకం లేదా సేవ కోసం ఆన్‌లైన్‌లో దరఖాస్తు చేయండి' },
-  { en: 'Track your application status anytime with your application number', te: 'మీ దరఖాస్తు నంబర్‌తో ఎప్పుడైనా స్థితిని ట్రాక్ చేయండి' },
+  { en: 'Check eligibility', te: 'అర్హత తనిఖీ చేయండి' },
+  { en: 'See documents needed', te: 'అవసరమైన పత్రాలు చూడండి' },
+  { en: 'Apply online', te: 'ఆన్‌లైన్‌లో దరఖాస్తు చేయండి' },
+  { en: 'Track your application', te: 'దరఖాస్తు ట్రాక్ చేయండి' },
 ];
 
 export default function Home() {
@@ -128,22 +93,18 @@ export default function Home() {
         </div>
       )}
 
-      <section className="grid grid-cols-1 gap-3 md:grid-cols-2">
-        {cards.map(({ to, Icon, en, te, featured, desc }) => (
+      <section className="grid grid-cols-2 gap-3">
+        {cards.map(({ to, Icon, en, te }) => (
           <Link
             key={to}
             to={to}
-            className={`flex flex-col items-center gap-2 rounded-xl border p-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
-              featured ? 'border-ap-orange/40 bg-gradient-to-br from-ap-orange/10 to-white md:col-span-2' : 'border-ap-blue/10 bg-white'
-            }`}
+            className="flex h-full flex-col items-center justify-start gap-2 rounded-xl border border-ap-blue/10 bg-white p-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
-            <div className={`flex h-11 w-11 items-center justify-center rounded-full ${featured ? 'bg-ap-orange text-white' : 'bg-ap-orange/10 text-ap-orange'}`}>
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-ap-orange/10 text-ap-orange">
               <Icon size={22} />
             </div>
-            <span className="text-sm font-medium text-ap-blue">{lang === 'te' ? te : en}</span>
-            {featured && desc && (
-              <span className="text-xs text-gray-600">{lang === 'te' ? desc.te : desc.en}</span>
-            )}
+            <span className="text-sm font-medium text-ap-blue">{en}</span>
+            <span className="lang-te text-xs text-gray-500">{te}</span>
           </Link>
         ))}
       </section>
@@ -158,10 +119,25 @@ export default function Home() {
               <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-ap-blue text-xs font-bold text-white">
                 {i + 1}
               </span>
-              <span className="text-sm text-gray-700">{lang === 'te' ? step.te : step.en}</span>
+              <span className="text-sm text-gray-700">
+                {step.en} <span className="lang-te text-gray-500">/ {step.te}</span>
+              </span>
             </li>
           ))}
         </ol>
+      </section>
+
+      <section className="rounded-xl bg-[#eff6ff] p-4 text-center shadow-sm">
+        <p className="text-sm font-semibold text-ap-blue">
+          Need help? Talk to SachiBot <span className="lang-te text-ap-blue/70">/ సహాయం కావాలా? సచిబాట్‌తో మాట్లాడండి</span>
+        </p>
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new CustomEvent('sachibot:open'))}
+          className="mt-3 inline-flex min-h-[44px] items-center justify-center rounded-full bg-ap-orange px-5 text-sm font-semibold text-white hover:bg-ap-orangeDark"
+        >
+          Open SachiBot / సచిబాట్ తెరువు
+        </button>
       </section>
     </div>
   );
