@@ -7,7 +7,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen w-full overflow-x-hidden bg-ap-cream lg:flex-row">
       <CitizenSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
-        <main className="mx-auto w-full max-w-5xl min-w-0 flex-1 px-4 py-6 text-sm">{children}</main>
+        <main className="mx-auto h-auto w-full max-w-5xl min-w-0 px-4 pt-6 pb-6 text-sm">{children}</main>
       </div>
       <AIChatbot />
     </div>

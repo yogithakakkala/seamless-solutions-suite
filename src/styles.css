@@ -11,7 +11,7 @@
   --color-ap-blueLight: #2563EB;
   --color-ap-orange: #F97316;
   --color-ap-orangeDark: #C2410C;
-  --color-ap-cream: #FFF8F1;
+  --color-ap-cream: #F1F5F9;
 
   --font-telugu: "Noto Sans Telugu", sans-serif;
 
@@ -121,6 +121,12 @@ body {
 }
 
 [data-lovable-badge],
-.lovable-badge {
+.lovable-badge,
+#lovable-badge,
+[class*="lovable-badge"],
+div[style*="lovable"] {
   display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
