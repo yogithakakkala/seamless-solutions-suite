@@ -132,7 +132,7 @@ export default function AdminSidebar() {
 
   return (
     <>
-      <div className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-ap-blue/10 bg-ap-blue px-3 text-white lg:hidden">
+      <div className="sticky top-0 z-30 flex h-14 w-full shrink-0 items-center justify-between border-b border-ap-blue/10 bg-ap-blue px-3 text-white lg:hidden">
         <button
           onClick={() => setOpen(true)}
           className="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-white/10"

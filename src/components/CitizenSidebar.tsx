@@ -141,7 +141,7 @@ export default function CitizenSidebar() {
   return (
     <>
       {/* Mobile + tablet top bar (56px) */}
-      <div className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-ap-blue/10 bg-white px-3 lg:hidden">
+      <div className="sticky top-0 z-30 flex h-14 w-full shrink-0 items-center gap-2 border-b border-ap-blue/10 bg-white px-3 lg:hidden">
         <button
           onClick={() => setOpen(true)}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-ap-blue hover:bg-ap-blue/5"
