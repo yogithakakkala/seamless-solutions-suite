@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Mobile and tablet shell layouts stack the 56px navigation bar above full-width centered content; only desktop uses a sidebar row, preventing hidden drawers from reserving horizontal space.
